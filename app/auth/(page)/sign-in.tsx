@@ -22,7 +22,7 @@ export default function SignInPage() {
 	}
 	return (
 		<>
-			<p className='text-center text-muted-foreground text-sm'>
+			<p className='text-center text-muted-foreground text-sm '>
 				Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat ipsa
 				quibusdam beatae aspernatur veritatis nemo repellendus!
 			</p>
