@@ -29,7 +29,7 @@ export default function SignInPage() {
 			<form
 				id='form-rhf-demo'
 				onSubmit={form.handleSubmit(onSubmit)}
-				className='space-y-8'
+				className='space-y-8 mt-2'
 			>
 				<FieldGroup>
 					<Controller
@@ -44,6 +44,7 @@ export default function SignInPage() {
 									aria-invalid={fieldState.invalid}
 									placeholder='info@gmail.com'
 									autoComplete='off'
+									className='rounded-sm'
 								/>
 								{fieldState.invalid && (
 									<FieldError errors={[fieldState.error]} />
@@ -52,7 +53,7 @@ export default function SignInPage() {
 						)}
 					/>
 				</FieldGroup>
-				<Button type='submit' variant='default' className='w-full ' size={"lg"}>
+				<Button type='submit' className='w-full rounded-sm' size={"lg"}>
 					Submit
 				</Button>
 			</form>
