@@ -44,7 +44,6 @@ export default function SignInPage() {
 									aria-invalid={fieldState.invalid}
 									placeholder='info@gmail.com'
 									autoComplete='off'
-									className='rounded-sm'
 								/>
 								{fieldState.invalid && (
 									<FieldError errors={[fieldState.error]} />
@@ -53,7 +52,7 @@ export default function SignInPage() {
 						)}
 					/>
 				</FieldGroup>
-				<Button type='submit' className='w-full rounded-sm' size={"lg"}>
+				<Button type='submit' className='w-full' size={"lg"}>
 					Submit
 				</Button>
 			</form>
