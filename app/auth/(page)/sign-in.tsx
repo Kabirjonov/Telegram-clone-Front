@@ -6,6 +6,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useAuthStore } from "@/hook/useAuth";
 
 import { SignInSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,12 +14,15 @@ import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 export default function SignInPage() {
+	const { setEmail, setStep } = useAuthStore();
 	const form = useForm<z.infer<typeof SignInSchema>>({
 		resolver: zodResolver(SignInSchema),
 		defaultValues: { email: "" },
 	});
 	function onSubmit(value: z.infer<typeof SignInSchema>) {
 		console.log(value);
+		setStep("verify");
+		setEmail(value.email);
 	}
 	return (
 		<>
@@ -29,7 +33,7 @@ export default function SignInPage() {
 			<form
 				id='form-rhf-demo'
 				onSubmit={form.handleSubmit(onSubmit)}
-				className='space-y-8 mt-2'
+				className='space-y-8 mt-2 w-full'
 			>
 				<FieldGroup>
 					<Controller
@@ -44,6 +48,7 @@ export default function SignInPage() {
 									aria-invalid={fieldState.invalid}
 									placeholder='info@gmail.com'
 									autoComplete='off'
+									name='email'
 								/>
 								{fieldState.invalid && (
 									<FieldError errors={[fieldState.error]} />
@@ -52,7 +57,7 @@ export default function SignInPage() {
 						)}
 					/>
 				</FieldGroup>
-				<Button type='submit' className='w-full' size={"lg"}>
+				<Button type='submit' className='w-full ' size={"lg"}>
 					Submit
 				</Button>
 			</form>
