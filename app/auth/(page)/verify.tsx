@@ -76,9 +76,10 @@ export default function VerifyAuth() {
 
 								<InputOTP
 									id='otp'
+									ref={field.ref}
 									maxLength={6}
 									value={field.value}
-									onChange={field.onChange}
+									onChange={value => field.onChange(value)}
 									onBlur={field.onBlur}
 									aria-invalid={fieldState.invalid}
 									containerClassName='justify-center'

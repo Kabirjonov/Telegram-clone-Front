@@ -8,18 +8,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/hook/useAuth";
 
-import { SignInSchema } from "@/lib/validation";
+import { emailSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 export default function SignInPage() {
 	const { setEmail, setStep } = useAuthStore();
-	const form = useForm<z.infer<typeof SignInSchema>>({
-		resolver: zodResolver(SignInSchema),
+	const form = useForm<z.infer<typeof emailSchema>>({
+		resolver: zodResolver(emailSchema),
 		defaultValues: { email: "" },
 	});
-	function onSubmit(value: z.infer<typeof SignInSchema>) {
+	function onSubmit(value: z.infer<typeof emailSchema>) {
 		console.log(value);
 		setStep("verify");
 		setEmail(value.email);

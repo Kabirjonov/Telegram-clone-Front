@@ -6,7 +6,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { SignInSchema } from "@/lib/validation";
+import { emailSchema } from "@/lib/validation";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { FaTelegram } from "react-icons/fa";
 import z from "zod";

@@ -8,7 +8,7 @@ import AddContact from "./(conponents)/AddContact";
 import { useCurrentContact } from "@/hook/useCurrentContact";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { messageSchema, SignInSchema } from "@/lib/validation";
+import { messageSchema, emailSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TopChat from "./(conponents)/TopChat";
 import Chat from "./(conponents)/Chat";
@@ -31,15 +31,15 @@ export default function HomePage() {
 		router.push("/");
 	}, []);
 
-	const contactForm = useForm<z.infer<typeof SignInSchema>>({
-		resolver: zodResolver(SignInSchema),
+	const contactForm = useForm<z.infer<typeof emailSchema>>({
+		resolver: zodResolver(emailSchema),
 		defaultValues: { email: "" },
 	});
 	const messageForm = useForm<z.infer<typeof messageSchema>>({
 		resolver: zodResolver(messageSchema),
 		defaultValues: { text: "", image: "" },
 	});
-	const onCreateContact = (values: z.infer<typeof SignInSchema>) => {
+	const onCreateContact = (values: z.infer<typeof emailSchema>) => {
 		console.log(values);
 	};
 	const onSendMessage = (values: z.infer<typeof messageSchema>) => {

@@ -28,11 +28,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Oxunjon Kabirjonov",
+	title: "Messager",
 	description: "Telegram web application clone create by Oxunjon Kabirjonov",
-	icons: {
-		icon: "/logo.svg",
-	},
 };
 
 export default function RootLayout({

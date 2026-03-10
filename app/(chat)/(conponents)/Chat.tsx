@@ -68,9 +68,6 @@ export default function Chat({ messageForm, onSendMessage }: Props) {
 									placeholder='Message'
 									ref={inputRef}
 								/>
-								{fieldState.invalid && (
-									<FieldError errors={[fieldState.error]} />
-								)}
 							</Field>
 						)}
 					/>

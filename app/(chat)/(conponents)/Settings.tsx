@@ -125,7 +125,7 @@ export default function Settings() {
 							</Button>
 						</Avatar>
 					</div>
-					<Accordion type='single' collapsible className='mt-4'>
+					<Accordion type='single' collapsible className='mt-4 gap-2'>
 						<AccordionItem value='item-1'>
 							<AccordionTrigger className='bg-secondary px-2'>
 								Basic Information
@@ -154,9 +154,8 @@ export default function Settings() {
 							<AccordionTrigger className='bg-secondary px-2'>
 								Danger Zona
 							</AccordionTrigger>
-
 							<AccordionContent className='px-2 mt-2'>
-								<DangerZonaForm />/
+								<DangerZonaForm />
 							</AccordionContent>
 						</AccordionItem>
 					</Accordion>
