@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -30,6 +31,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Messager",
 	description: "Telegram web application clone create by Oxunjon Kabirjonov",
+	icons: { icon: "/icon.svg" },
 };
 
 export default function RootLayout({
@@ -54,6 +56,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					{children}
+					<Toaster />
 				</ThemeProvider>
 			</body>
 		</html>

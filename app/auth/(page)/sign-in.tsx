@@ -7,10 +7,14 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/hook/useAuth";
+import { api } from "@/https/axios";
 
 import { emailSchema } from "@/lib/validation";
+import { IApiResponse, IError, IUser } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 export default function SignInPage() {
@@ -19,10 +23,25 @@ export default function SignInPage() {
 		resolver: zodResolver(emailSchema),
 		defaultValues: { email: "" },
 	});
+
+	const { mutate, isPending } = useMutation({
+		mutationFn: async (email: string) => {
+			const { data } = await api.post<IApiResponse<IUser>>("/api/auth/login", {
+				email,
+			});
+			return data;
+		},
+		onSuccess: data => {
+			setEmail(data.body?.email);
+			setStep("verify");
+			toast.success(data.message);
+		},
+		onError: (error: IError) => {
+			toast.error(error.response.data.message || "Something want wrong");
+		},
+	});
 	function onSubmit(value: z.infer<typeof emailSchema>) {
-		console.log(value);
-		setStep("verify");
-		setEmail(value.email);
+		mutate(value.email);
 	}
 	return (
 		<>
@@ -49,6 +68,7 @@ export default function SignInPage() {
 									placeholder='info@gmail.com'
 									autoComplete='off'
 									name='email'
+									disabled={isPending}
 								/>
 								{fieldState.invalid && (
 									<FieldError errors={[fieldState.error]} />
@@ -57,7 +77,12 @@ export default function SignInPage() {
 						)}
 					/>
 				</FieldGroup>
-				<Button type='submit' className='w-full ' size={"lg"}>
+				<Button
+					type='submit'
+					className='w-full '
+					size={"lg"}
+					disabled={isPending}
+				>
 					Submit
 				</Button>
 			</form>

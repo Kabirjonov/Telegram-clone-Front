@@ -40,10 +40,13 @@ import InformationForm from "@/components/forms/informationForm";
 import EmailForm from "@/components/forms/emailForm";
 import NotificationForm from "@/components/forms/notificationForm";
 import DangerZonaForm from "@/components/forms/dangerZonaForm";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Settings() {
+	const { data } = useSession();
 	const [isProfileOpen, setIsProfileOpen] = useState(false);
 	const { resolvedTheme, setTheme } = useTheme();
+	const user = data?.currentUser;
 	return (
 		<>
 			<Popover>
@@ -55,7 +58,7 @@ export default function Settings() {
 				<PopoverContent className='p-0 w-90'>
 					<h2 className='pt-2 pl-2 text-muted-foreground'>
 						Setting:
-						<span className='text-white'> info@gmail.com</span>
+						<span className='text-white text-sm'> {user?.email}</span>
 						<Separator className='my-2' />
 						<div className='flex flex-col'>
 							<div
@@ -99,7 +102,10 @@ export default function Settings() {
 								/>
 							</div>
 							<div className='flex justify-between items-center p-2 bg-destructive cursor-pointer'>
-								<div className='flex items-center gap-1'>
+								<div
+									className='flex items-center gap-1'
+									onClick={() => signOut()}
+								>
 									<LogIn size={16} />
 									<span className='text-sm'>Logout</span>
 								</div>

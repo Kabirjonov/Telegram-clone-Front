@@ -31,7 +31,7 @@ export const profileSchema = z.object({
 	bio: z.string().optional(),
 });
 
-export const confirmText = z
+export const confirmTextSchema = z
 	.object({
 		confirmText: z.string().min(2),
 	})

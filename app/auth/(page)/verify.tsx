@@ -15,20 +15,55 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useAuthStore } from "@/hook/useAuth";
+import { api } from "@/https/axios";
 import { otpSchema } from "@/lib/validation";
+import { IApiResponse, IError, IUser } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
+import { signIn } from "next-auth/react";
 export default function VerifyAuth() {
 	const { email } = useAuthStore();
 	const form = useForm<z.infer<typeof otpSchema>>({
 		resolver: zodResolver(otpSchema),
 		defaultValues: { email: email, otp: "" },
 	});
+	const router = useRouter();
+	const { isPaused, mutate } = useMutation({
+		mutationFn: async (otp: string) => {
+			const { data } = await api.post<IApiResponse<IUser>>("/api/auth/verify", {
+				email,
+				otp,
+			});
+			return data;
+		},
+		onSuccess: async data => {
+			toast.success(data.message);
+			const response = await signIn("credentials", {
+				email: data.body.email,
+				redirect: false,
+				callbackUrl: "/",
+			});
+
+			if (response?.error) {
+				toast.error("Authentication failed");
+				return;
+			}
+
+			router.push(response?.url ?? "/");
+		},
+		onError: error => {
+			console.log(error);
+			// toast.error(error.response.data.message);
+		},
+	});
 
 	function onSubmit(value: z.infer<typeof otpSchema>) {
-		console.log(value);
+		mutate(value.otp);
 	}
 
 	return (
@@ -84,6 +119,7 @@ export default function VerifyAuth() {
 									aria-invalid={fieldState.invalid}
 									containerClassName='justify-center'
 									pattern={REGEXP_ONLY_DIGITS}
+									disabled={isPaused}
 								>
 									<InputOTPGroup className='w-full rounded-none'>
 										<InputOTPSlot
@@ -120,7 +156,12 @@ export default function VerifyAuth() {
 						)}
 					/>
 				</FieldGroup>
-				<Button type='submit' className='w-full ' size={"lg"}>
+				<Button
+					type='submit'
+					className='w-full '
+					size={"lg"}
+					disabled={isPaused}
+				>
 					Submit
 				</Button>
 			</form>
