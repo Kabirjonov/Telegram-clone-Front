@@ -101,11 +101,11 @@ export default function Settings() {
 									}
 								/>
 							</div>
-							<div className='flex justify-between items-center p-2 bg-destructive cursor-pointer'>
-								<div
-									className='flex items-center gap-1'
-									onClick={() => signOut()}
-								>
+							<div
+								className='flex justify-between items-center p-2 bg-destructive cursor-pointer '
+								onClick={() => signOut()}
+							>
+								<div className='flex items-center gap-1'>
 									<LogIn size={16} />
 									<span className='text-sm'>Logout</span>
 								</div>

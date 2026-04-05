@@ -1,4 +1,5 @@
-export const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+export const BASE_URL =
+	process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
 import axios from "axios";
 
 export const api = axios.create({
