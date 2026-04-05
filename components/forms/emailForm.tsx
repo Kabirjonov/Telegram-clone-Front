@@ -3,7 +3,7 @@ import { oldEmailSchema, otpSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import z from "zod";
+import z, { email } from "zod";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -16,17 +16,21 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/https/axios";
+import { IApiResponse } from "@/types";
+import { useSession } from "next-auth/react";
+import { generateToken } from "@/lib/tokenGenerate";
+import { toast } from "sonner";
 export default function EmailForm() {
+	const { data: session } = useSession();
 	const [verify, seVerify] = useState(false);
 
 	const emailForm = useForm<z.infer<typeof oldEmailSchema>>({
 		resolver: zodResolver(oldEmailSchema),
-		defaultValues: { email: "", oldEmail: "info@gmail.com" },
+		defaultValues: { email: "", oldEmail: session?.currentUser.email ?? "" },
 	});
-	// const otpForm = useForm<z.infer<typeof otpSchema>>({
-	// 	resolver: zodResolver(otpSchema),
-	// 	defaultValues: { email: "info@gmail.com", otp: "" },
-	// });
+
 	const otpForm = useForm<z.infer<typeof otpSchema>>({
 		resolver: zodResolver(otpSchema),
 		defaultValues: { email: "", otp: "" },
@@ -34,14 +38,67 @@ export default function EmailForm() {
 
 	function onVerifySubmit(value: z.infer<typeof otpSchema>) {
 		console.log(value);
+		verifyMutation(value);
 	}
 	function onEmailSubmit(value: z.infer<typeof oldEmailSchema>) {
-		// otpForm.setValue("email", value.email);
-		seVerify(true);
+		mutate(value.email);
 	}
+	const { mutate, isPending } = useMutation({
+		mutationFn: async (email: string) => {
+			const token = await generateToken(
+				session?.currentUser._id!,
+				session?.currentUser.email!,
+			);
+			const { data } = await api.post<IApiResponse<{ email: string }>>(
+				"api/user/send-otp",
+				{ email },
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			return data;
+		},
+		onSuccess: data => {
+			console.log("seccess", data);
+			otpForm.setValue("email", data.body.email);
+			seVerify(true);
+			toast.success(data.message);
+		},
+		onError: error => {
+			toast.error(error.message);
+			console.log(error);
+		},
+	});
+	const verifyMutation = useMutation({
+		mutationFn: async (value: z.infer<typeof otpSchema>) => {
+			const token = await generateToken(
+				session?.currentUser._id!,
+				session?.currentUser.email!,
+			);
+			const { data } = await api.post<IApiResponse<any>>(
+				"api/user/verify-otp",
+				value,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+			return data;
+		},
+		onSuccess: data => {
+			console.log("seccess", data);
+			toast.success(data.message);
+		},
+		onError: error => {
+			toast.error(error.message);
+			console.log(error);
+		},
+	});
 	return verify ? (
 		<form
-			id='form-rhf-demo'
 			onSubmit={otpForm.handleSubmit(onVerifySubmit)}
 			className='space-y-8 mt-2'
 		>
@@ -83,8 +140,8 @@ export default function EmailForm() {
 								onChange={value => field.onChange(value)}
 								onBlur={field.onBlur}
 								aria-invalid={fieldState.invalid}
-								containerClassName='justify-center'
-								pattern={REGEXP_ONLY_DIGITS}
+								// containerClassName='justify-center'
+								// pattern={REGEXP_ONLY_DIGITS}
 							>
 								<InputOTPGroup className='w-full rounded-none'>
 									<InputOTPSlot
@@ -161,6 +218,7 @@ export default function EmailForm() {
 								id='form-rhf-demo-title'
 								aria-invalid={fieldState.invalid}
 								autoComplete='off'
+								disabled={isPending}
 								name='email'
 							/>
 							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -168,7 +226,12 @@ export default function EmailForm() {
 					)}
 				/>
 			</FieldGroup>
-			<Button type='submit' className='w-full ' size={"lg"}>
+			<Button
+				type='submit'
+				className='w-full '
+				size={"lg"}
+				disabled={isPending}
+			>
 				Verify email
 			</Button>
 		</form>
