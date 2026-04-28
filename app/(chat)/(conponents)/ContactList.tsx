@@ -13,12 +13,15 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCurrentContact } from "@/hook/useCurrentContact";
 import { useState } from "react";
+import { useAuthStore } from "@/hook/useAuth";
+import { isUserOnline } from "@/lib/isUserOnline";
 interface Props {
 	contactList: IUser[];
 }
 
 export default function ContactList({ contactList }: Props) {
 	const [query, setQuery] = useState("");
+	const { onlineUsers } = useAuthStore();
 	const { currentContact, setCurrentContact } = useCurrentContact();
 	const filteredContacts = contactList.filter(contact =>
 		contact.email.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
@@ -50,12 +53,15 @@ export default function ContactList({ contactList }: Props) {
 							<AvatarFallback className='uppercase'>
 								{contact.email[0]}
 							</AvatarFallback>
-							<AvatarBadge className='bg-green-600 dark:bg-green-800' />
+							{isUserOnline(onlineUsers, contact._id) && (
+								<AvatarBadge className='bg-green-600 dark:bg-green-800' />
+							)}
 						</Avatar>
 					</div>
 					<div>
 						<h2 className='capitalize line-clamp-1 text-sm'>
-							{contact.email.split("@")[0]}
+							{(contact.firstName && contact.firstName) ||
+								contact.email.split("@")[0]}
 						</h2>
 						<p className='text-muted-foreground text-xs line-clamp-1'>
 							No message yet

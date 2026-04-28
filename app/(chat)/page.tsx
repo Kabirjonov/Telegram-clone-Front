@@ -2,8 +2,7 @@
 import { Loader2 } from "lucide-react";
 import ContactList from "./(conponents)/ContactList";
 import { IApiResponse, IError, IUser } from "@/types";
-import { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import AddContact from "./(conponents)/AddContact";
 import { useCurrentContact } from "@/hook/useCurrentContact";
 import { useForm } from "react-hook-form";
@@ -17,28 +16,34 @@ import { api } from "@/https/axios";
 import { generateToken } from "@/lib/tokenGenerate";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-
-const mockList: IUser[] = [
-	{
-		// @ts-ignore
-		_id: 2,
-		email: "kabirjonov@gmail.com",
-		avatar: "https://github.com/shadcn.png",
-		firstName: "John",
-		lastName: "Doe",
-		bio: "Harry Potter is a global fantasy phenomenon featuring seven novels by J.K. Rowling (1997–2007) and eight blockbuster films (2001–2011) following a young wizard's fight against Lord Voldemort.",
-	},
-];
+import { useRouter } from "next/navigation";
+import { io } from "socket.io-client";
+import { useAuthStore } from "@/hook/useAuth";
 export default function HomePage() {
 	const [contacts, setContects] = useState<IUser[]>([]);
 	const { currentContact } = useCurrentContact();
-	// const router = useRouter();
+	const router = useRouter();
 	const { setLoading, setCreating, isLoading } = useLoading();
 	const { data: session } = useSession();
-	// useEffect(() => {
-	// 	router.push("/");
-	// }, []);
-
+	const { onlineUsers, setOnlineUsers } = useAuthStore();
+	const socket = useRef<ReturnType<typeof io> | null>(null);
+	useEffect(() => {
+		router.replace("/");
+		socket.current = io("ws://localhost:4000");
+	}, []);
+	useEffect(() => {
+		if (session?.currentUser._id) {
+			getContects();
+			socket.current?.emit("join", session?.currentUser);
+			socket.current?.on(
+				"getOnlineUsers",
+				(data: { socketId: string; user: IUser }[]) => {
+					console.log(data);
+					setOnlineUsers(data.map(item => item.user));
+				},
+			);
+		}
+	}, [session?.currentUser]);
 	const contactForm = useForm<z.infer<typeof emailSchema>>({
 		resolver: zodResolver(emailSchema),
 		defaultValues: { email: "" },
@@ -97,9 +102,7 @@ export default function HomePage() {
 			setCreating(false);
 		}
 	};
-	useEffect(() => {
-		if (session?.currentUser._id) getContects();
-	}, [session?.currentUser]);
+
 	return (
 		<>
 			<div className='w-[20%] h-screen border-r fixed inset-0 z-50'>

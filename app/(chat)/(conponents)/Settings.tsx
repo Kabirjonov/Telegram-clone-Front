@@ -65,7 +65,7 @@ export default function Settings() {
 			return data;
 		},
 		onSuccess: data => {
-			toast(data.message);
+			toast.success(data.message);
 			update();
 		},
 	});
@@ -120,7 +120,7 @@ export default function Settings() {
 									}
 								/>
 							</div>
-							<div className='flex justify-between items-center p-2 hover:bg-secondary cursor-pointer'>
+							<div className='flex justify-between items-center p-2  hover:bg-secondary cursor-pointer'>
 								<div className='flex items-center gap-1'>
 									{resolvedTheme == "dark" ? (
 										<Sun size={16} />

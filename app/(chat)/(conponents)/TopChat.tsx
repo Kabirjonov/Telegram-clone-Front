@@ -8,13 +8,15 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
+import { useAuthStore } from "@/hook/useAuth";
 import { useCurrentContact } from "@/hook/useCurrentContact";
+import { isUserOnline } from "@/lib/isUserOnline";
 import { Settings } from "lucide-react";
 import Image from "next/image";
-import React from "react";
 
 export default function TopChat() {
 	const { currentContact } = useCurrentContact();
+	const { onlineUsers } = useAuthStore();
 	return (
 		<div className='w-full flex items-center justify-between sticky top-0 z-50 h-[8vh] p-2 border-b bg-background'>
 			<div className='flex items-center'>
@@ -49,11 +51,19 @@ export default function TopChat() {
 					</div> */}
 					<p className='text-xs flex items-center gap-1'>
 						{/* Online */}
-						{/* <span className='h-1.5 w-1.5 bg-green-500 rounded-full' />
-						Online */}
+						{/* */}
 						{/* Offline */}
-						<span className='h-1.5 w-1.5 bg-gray-500 rounded-full' />
-						Offline
+						{isUserOnline(onlineUsers, currentContact?._id) ? (
+							<>
+								<span className='h-1.5 w-1.5 bg-green-500 rounded-full' />
+								Online{" "}
+							</>
+						) : (
+							<>
+								<span className='h-1.5 w-1.5 bg-gray-500 rounded-full' />
+								Offline
+							</>
+						)}
 					</p>
 				</div>
 			</div>

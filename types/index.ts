@@ -1,7 +1,6 @@
 export interface IUser {
-	isVerified: boolean;
-	email: string;
 	_id: string;
+	email: string;
 	avatar?: string;
 	firstName?: string;
 	lastName?: string;
@@ -9,6 +8,7 @@ export interface IUser {
 	muted: boolean;
 	notificationSound: string;
 	sendingSound: string;
+	isVerified: boolean;
 	contacts: IUser[];
 }
 export interface IApiResponse<T = null> {
