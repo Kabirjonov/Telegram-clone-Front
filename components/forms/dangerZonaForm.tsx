@@ -15,14 +15,34 @@ import { confirmTextSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
+import { useMutation } from "@tanstack/react-query";
+import { signOut, useSession } from "next-auth/react";
+import { generateToken } from "@/lib/tokenGenerate";
+import { api } from "@/https/axios";
+import { IApiResponse } from "@/types";
+import { toast } from "sonner";
 export default function DangerZonaForm() {
 	const form = useForm<z.infer<typeof confirmTextSchema>>({
 		resolver: zodResolver(confirmTextSchema),
 		defaultValues: { confirmText: "" },
 	});
 	function onSubmit(value: z.infer<typeof confirmTextSchema>) {
-		console.log(value);
+		mutate();
 	}
+	const { data: session } = useSession();
+	const { mutate, isPending } = useMutation({
+		mutationFn: async () => {
+			const token = await generateToken(session?.currentUser._id);
+			const { data } = await api.delete<IApiResponse<any>>("/api/user/delete", {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			return data;
+		},
+		onSuccess: data => {
+			signOut();
+			toast(data.message);
+		},
+	});
 	return (
 		<>
 			<p className='text-xs text-muted-foreground text-center'>
@@ -64,6 +84,7 @@ export default function DangerZonaForm() {
 											autoComplete='off'
 											placeholder='DELETE'
 											name='email'
+											disabled={isPending}
 										/>
 										{fieldState.invalid && (
 											<FieldError errors={[fieldState.error]} />
@@ -72,7 +93,12 @@ export default function DangerZonaForm() {
 								)}
 							/>
 						</FieldGroup>
-						<Button type='submit' className='w-full ' size={"lg"}>
+						<Button
+							type='submit'
+							className='w-full '
+							disabled={isPending}
+							size={"lg"}
+						>
 							Submit
 						</Button>
 					</form>

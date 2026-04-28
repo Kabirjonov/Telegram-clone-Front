@@ -10,7 +10,7 @@ import { useAuthStore } from "@/hook/useAuth";
 import { api } from "@/https/axios";
 
 import { emailSchema } from "@/lib/validation";
-import { IApiResponse, IError, IUser } from "@/types";
+import { IApiResponse, IUser } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
@@ -35,9 +35,6 @@ export default function SignInPage() {
 			setEmail(data.body?.email);
 			setStep("verify");
 			toast.success(data.message);
-		},
-		onError: (error: IError) => {
-			toast.error(error.response.data.message || "Something want wrong");
 		},
 	});
 	function onSubmit(value: z.infer<typeof emailSchema>) {

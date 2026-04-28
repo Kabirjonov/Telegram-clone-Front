@@ -42,10 +42,6 @@ export default function InformationForm() {
 			toast.success(data.message);
 			update();
 		},
-		onError: error => {
-			toast.error(error.message);
-			console.log(error);
-		},
 	});
 	const onSubmit = (values: z.infer<typeof profileSchema>) => {
 		mutate(values);

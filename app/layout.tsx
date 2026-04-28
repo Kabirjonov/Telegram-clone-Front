@@ -6,10 +6,12 @@ import {
 	Figtree,
 	Inter,
 } from "next/font/google";
-import "./globals.css";
+// @ts-ignore
+import "@/app/globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/components/providers/query.providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -49,15 +51,17 @@ export default function RootLayout({
 				suppressHydrationWarning
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<ThemeProvider
-					attribute='class'
-					defaultTheme='system'
-					enableSystem
-					disableTransitionOnChange
-				>
-					{children}
-					<Toaster />
-				</ThemeProvider>
+				<QueryProvider>
+					<ThemeProvider
+						attribute='class'
+						defaultTheme='system'
+						enableSystem
+						disableTransitionOnChange
+					>
+						{children}
+						<Toaster position='bottom-right' />
+					</ThemeProvider>
+				</QueryProvider>
 			</body>
 		</html>
 	);

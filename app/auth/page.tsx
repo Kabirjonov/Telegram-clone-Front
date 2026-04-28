@@ -1,4 +1,3 @@
-import React from "react";
 import { FaTelegram } from "react-icons/fa";
 import StateAuth from "./(page)/state";
 import SocialAuth from "./(page)/social";

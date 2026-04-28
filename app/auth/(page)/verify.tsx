@@ -17,7 +17,7 @@ import {
 import { useAuthStore } from "@/hook/useAuth";
 import { api } from "@/https/axios";
 import { otpSchema } from "@/lib/validation";
-import { IApiResponse, IError, IUser } from "@/types";
+import { IApiResponse, IUser } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
@@ -55,10 +55,6 @@ export default function VerifyAuth() {
 			}
 
 			router.push(response?.url ?? "/");
-		},
-		onError: error => {
-			console.log(error);
-			// toast.error(error.response.data.message);
 		},
 	});
 

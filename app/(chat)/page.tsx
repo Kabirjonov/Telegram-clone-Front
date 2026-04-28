@@ -15,6 +15,7 @@ import Chat from "./(conponents)/Chat";
 
 const mockList: IUser[] = [
 	{
+		// @ts-ignore
 		_id: 2,
 		email: "kabirjonov@gmail.com",
 		avatar: "https://github.com/shadcn.png",

@@ -3,7 +3,7 @@ import { oldEmailSchema, otpSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import z, { email } from "zod";
+import z from "zod";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -18,12 +18,12 @@ import {
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/https/axios";
-import { IApiResponse } from "@/types";
-import { useSession } from "next-auth/react";
+import { IApiResponse, IUser } from "@/types";
+import { signOut, useSession } from "next-auth/react";
 import { generateToken } from "@/lib/tokenGenerate";
 import { toast } from "sonner";
 export default function EmailForm() {
-	const { data: session } = useSession();
+	const { data: session, update } = useSession();
 	const [verify, seVerify] = useState(false);
 
 	const emailForm = useForm<z.infer<typeof oldEmailSchema>>({
@@ -37,18 +37,14 @@ export default function EmailForm() {
 	});
 
 	function onVerifySubmit(value: z.infer<typeof otpSchema>) {
-		console.log(value);
-		verifyMutation(value);
+		verifyMutation.mutate(value);
 	}
 	function onEmailSubmit(value: z.infer<typeof oldEmailSchema>) {
 		mutate(value.email);
 	}
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (email: string) => {
-			const token = await generateToken(
-				session?.currentUser._id!,
-				session?.currentUser.email!,
-			);
+			const token = await generateToken(session?.currentUser._id!);
 			const { data } = await api.post<IApiResponse<{ email: string }>>(
 				"api/user/send-otp",
 				{ email },
@@ -66,19 +62,12 @@ export default function EmailForm() {
 			seVerify(true);
 			toast.success(data.message);
 		},
-		onError: error => {
-			toast.error(error.message);
-			console.log(error);
-		},
 	});
 	const verifyMutation = useMutation({
 		mutationFn: async (value: z.infer<typeof otpSchema>) => {
-			const token = await generateToken(
-				session?.currentUser._id!,
-				session?.currentUser.email!,
-			);
-			const { data } = await api.post<IApiResponse<any>>(
-				"api/user/verify-otp",
+			const token = await generateToken(session?.currentUser._id!);
+			const { data } = await api.put<IApiResponse<IUser>>(
+				"api/user/email",
 				value,
 				{
 					headers: {
@@ -89,12 +78,8 @@ export default function EmailForm() {
 			return data;
 		},
 		onSuccess: data => {
-			console.log("seccess", data);
+			signOut();
 			toast.success(data.message);
-		},
-		onError: error => {
-			toast.error(error.message);
-			console.log(error);
 		},
 	});
 	return verify ? (
@@ -115,33 +100,23 @@ export default function EmailForm() {
 								aria-invalid={fieldState.invalid}
 								autoComplete='off'
 								name='email'
-								disabled={true}
+								readOnly
 							/>
 							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 						</Field>
 					)}
 				/>
 			</FieldGroup>
-			<FieldGroup>
-				<Controller
-					name='otp'
-					control={otpForm.control}
-					render={({ field, fieldState }) => (
-						<Field data-invalid={fieldState.invalid}>
-							<FieldLabel htmlFor='form-rhf-demo-title'>
-								One-Time password
-							</FieldLabel>
-
+			{/* 
 							<InputOTP
 								id='otp'
-								ref={field.ref}
 								maxLength={6}
 								value={field.value ?? ""}
-								onChange={value => field.onChange(value)}
+								onChange={field.onChange}
 								onBlur={field.onBlur}
 								aria-invalid={fieldState.invalid}
 								// containerClassName='justify-center'
-								// pattern={REGEXP_ONLY_DIGITS}
+								pattern={REGEXP_ONLY_DIGITS}
 							>
 								<InputOTPGroup className='w-full rounded-none'>
 									<InputOTPSlot
@@ -171,11 +146,40 @@ export default function EmailForm() {
 									/>
 								</InputOTPGroup>
 							</InputOTP>
-							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-						</Field>
-					)}
-				/>
-			</FieldGroup>
+							*/}{" "}
+			<Controller
+				name='otp'
+				control={otpForm.control}
+				render={({ field, fieldState }) => (
+					<Field data-invalid={fieldState.invalid}>
+						<FieldLabel>One-Time password</FieldLabel>
+
+						<InputOTP
+							maxLength={6}
+							value={field.value}
+							onChange={field.onChange}
+							onBlur={field.onBlur}
+							pattern={REGEXP_ONLY_DIGITS}
+						>
+							<InputOTPGroup>
+								<InputOTPSlot index={0} />
+								<InputOTPSlot index={1} />
+								<InputOTPSlot index={2} />
+							</InputOTPGroup>
+
+							<InputOTPSeparator />
+
+							<InputOTPGroup>
+								<InputOTPSlot index={3} />
+								<InputOTPSlot index={4} />
+								<InputOTPSlot index={5} />
+							</InputOTPGroup>
+						</InputOTP>
+
+						{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+					</Field>
+				)}
+			/>
 			<Button type='submit' className='w-full ' size={"lg"}>
 				Submit
 			</Button>
@@ -199,7 +203,7 @@ export default function EmailForm() {
 								placeholder='info@gmail.com'
 								autoComplete='off'
 								name='email'
-								disabled
+								readOnly
 							/>
 							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 						</Field>

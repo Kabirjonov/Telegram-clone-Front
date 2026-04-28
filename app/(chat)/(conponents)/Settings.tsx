@@ -8,6 +8,7 @@ import {
 	Sun,
 	Upload,
 	UserPlus,
+	Volume2,
 	VolumeOff,
 } from "lucide-react";
 import {
@@ -20,13 +21,10 @@ import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
 import {
 	Sheet,
-	SheetClose,
 	SheetContent,
 	SheetDescription,
-	SheetFooter,
 	SheetHeader,
 	SheetTitle,
-	SheetTrigger,
 } from "@/components/ui/sheet";
 import {
 	Accordion,
@@ -41,12 +39,35 @@ import EmailForm from "@/components/forms/emailForm";
 import NotificationForm from "@/components/forms/notificationForm";
 import DangerZonaForm from "@/components/forms/dangerZonaForm";
 import { useSession, signOut } from "next-auth/react";
+import { IApiResponse } from "@/types";
+import { generateToken } from "@/lib/tokenGenerate";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/https/axios";
+import { toast } from "sonner";
 
 export default function Settings() {
 	const { data } = useSession();
 	const [isProfileOpen, setIsProfileOpen] = useState(false);
 	const { resolvedTheme, setTheme } = useTheme();
 	const user = data?.currentUser;
+	const { data: session, update } = useSession();
+	const { mutate, isPending } = useMutation({
+		mutationFn: async (payload: { muted: boolean }) => {
+			const token = await generateToken(session?.currentUser._id);
+			const { data } = await api.put<IApiResponse<any>>(
+				"/api/user/profile",
+				payload,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				},
+			);
+			return data;
+		},
+		onSuccess: data => {
+			toast(data.message);
+			update();
+		},
+	});
 	return (
 		<>
 			<Popover>
@@ -58,7 +79,7 @@ export default function Settings() {
 				<PopoverContent className='p-0 w-90'>
 					<h2 className='pt-2 pl-2 text-muted-foreground'>
 						Setting:
-						<span className='text-white text-sm'> {user?.email}</span>
+						<span className=' text-foreground text-sm'> {user?.email}</span>
 						<Separator className='my-2' />
 						<div className='flex flex-col'>
 							<div
@@ -71,17 +92,32 @@ export default function Settings() {
 								</div>
 							</div>
 							<div className='flex justify-between items-center p-2 hover:bg-secondary cursor-pointer'>
-								<div className='flex items-center gap-1'>
+								<div
+									className='flex items-center gap-1'
+									onClick={() => window.location.reload()}
+								>
 									<UserPlus size={16} />
 									<span className='text-sm'>Create contact</span>
 								</div>
 							</div>
 							<div className='flex justify-between items-center p-2 hover:bg-secondary cursor-pointer'>
 								<div className='flex items-center gap-1'>
-									<VolumeOff size={16} />
-									<span className='text-sm'>Mute</span>
+									{session?.currentUser.muted ? (
+										<Volume2 size={16} />
+									) : (
+										<VolumeOff size={16} />
+									)}
+									<span className='text-sm'>
+										{session?.currentUser.muted ? "Muted" : "Unmuted"}
+									</span>
 								</div>
-								<Switch />
+								<Switch
+									checked={session?.currentUser.muted}
+									disabled={isPending}
+									onCheckedChange={() =>
+										mutate({ muted: !session?.currentUser.muted })
+									}
+								/>
 							</div>
 							<div className='flex justify-between items-center p-2 hover:bg-secondary cursor-pointer'>
 								<div className='flex items-center gap-1'>
