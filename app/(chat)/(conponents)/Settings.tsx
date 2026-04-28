@@ -33,7 +33,7 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useState } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import InformationForm from "@/components/forms/informationForm";
 import EmailForm from "@/components/forms/emailForm";
 import NotificationForm from "@/components/forms/notificationForm";
@@ -44,7 +44,7 @@ import { generateToken } from "@/lib/tokenGenerate";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/https/axios";
 import { toast } from "sonner";
-import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
+import { UploadButton } from "@/lib/uploadthing";
 
 export default function Settings() {
 	const { data } = useSession();
@@ -53,7 +53,7 @@ export default function Settings() {
 	const user = data?.currentUser;
 	const { data: session, update } = useSession();
 	const { mutate, isPending } = useMutation({
-		mutationFn: async (payload: { muted: boolean }) => {
+		mutationFn: async (payload: { muted?: boolean; avatar?: string }) => {
 			const token = await generateToken(session?.currentUser._id);
 			const { data } = await api.put<IApiResponse<any>>(
 				"/api/user/profile",
@@ -161,14 +161,20 @@ export default function Settings() {
 
 					<div className='mx-auto w-1/2 h-36 relative'>
 						<Avatar className='w-full h-36'>
+							<AvatarImage
+								src={session?.currentUser.avatar}
+								alt={session?.currentUser.email}
+								className='object-cover'
+							/>
 							<AvatarFallback className='text-6xl uppercase '>
-								SB
+								{session?.currentUser.email[0]}
 							</AvatarFallback>
 						</Avatar>
 						<UploadButton
 							endpoint='imageUploader'
 							onClientUploadComplete={res => {
 								console.log(res);
+								mutate({ avatar: res[0].ufsUrl });
 							}}
 							config={{ appendOnPaste: true, mode: "auto" }}
 							className='absolute right-0 bottom-0'

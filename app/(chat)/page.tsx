@@ -60,6 +60,7 @@ export default function HomePage() {
 					},
 				},
 			);
+			console.log("create contact", data);
 			setContects(prev => [...prev, data.body]);
 			toast.success(data.message);
 		} catch (error: any) {
@@ -83,7 +84,7 @@ export default function HomePage() {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			contactForm.reset();
-			setContects(prev => [...prev, ...data.body]);
+			setContects([...data.body]);
 			setLoading(false);
 		} catch (error: any) {
 			if ((error as IError)?.response?.data?.message) {

@@ -29,7 +29,11 @@ export default function TopChat() {
 					</AvatarFallback>
 				</Avatar>
 				<div className='ml-2'>
-					<h2 className='font-medium text-sm'>{currentContact?.email}</h2>
+					<h2 className='font-medium text-sm'>
+						{currentContact?.firstName && currentContact.lastName
+							? currentContact?.firstName + " " + currentContact?.lastName
+							: currentContact?.email}
+					</h2>
 					{/* IS typeing */}
 					{/* <div className='text-xs flex items-center gap-1 text-muted-foreground'>
 						<p className='text-secondary-foreground animate-pulse line-clamp-1'>
