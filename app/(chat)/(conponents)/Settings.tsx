@@ -44,6 +44,7 @@ import { generateToken } from "@/lib/tokenGenerate";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/https/axios";
 import { toast } from "sonner";
+import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
 
 export default function Settings() {
 	const { data } = useSession();
@@ -157,15 +158,31 @@ export default function Settings() {
 						<SheetDescription>This action cannot be undone.</SheetDescription>
 					</SheetHeader>
 					<Separator />
+
 					<div className='mx-auto w-1/2 h-36 relative'>
 						<Avatar className='w-full h-36'>
 							<AvatarFallback className='text-6xl uppercase '>
 								SB
 							</AvatarFallback>
-							<Button size={"icon"} className='absolute right-0 bottom-0'>
-								<Upload size={16} />
-							</Button>
 						</Avatar>
+						<UploadButton
+							endpoint='imageUploader'
+							onClientUploadComplete={res => {
+								console.log(res);
+							}}
+							config={{ appendOnPaste: true, mode: "auto" }}
+							className='absolute right-0 bottom-0'
+							appearance={{
+								allowedContent: { display: "none" },
+								button: {
+									width: 40,
+									height: 40,
+									borderRadius: "100%",
+									borderColor: "transparent",
+								},
+							}}
+							content={{ button: <Upload size={16} /> }}
+						/>
 					</div>
 					<Accordion type='single' collapsible className='mt-4 gap-2'>
 						<AccordionItem value='item-1'>

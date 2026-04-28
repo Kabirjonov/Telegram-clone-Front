@@ -6,16 +6,16 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { emailSchema } from "@/lib/validation";
+import { useLoading } from "@/hook/useLoading";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { FaTelegram } from "react-icons/fa";
-import z from "zod";
 
 interface Props {
 	contactForm: UseFormReturn<{ email: string }>;
 	onCreateContact: (values: any) => void;
 }
 export default function AddContact({ contactForm, onCreateContact }: Props) {
+	const { isCreating } = useLoading();
 	return (
 		<div className='h-screen w-full flex z-40 relative'>
 			<div className='flex justify-center items-center z-50 w-full'>
@@ -34,6 +34,7 @@ export default function AddContact({ contactForm, onCreateContact }: Props) {
 									<Field data-invalid={fieldState.invalid}>
 										<FieldLabel htmlFor='form-rhf-demo-title'>Email</FieldLabel>
 										<Input
+											disabled={isCreating}
 											{...field}
 											id='form-rhf-demo-title'
 											aria-invalid={fieldState.invalid}
@@ -48,7 +49,7 @@ export default function AddContact({ contactForm, onCreateContact }: Props) {
 								)}
 							/>
 						</FieldGroup>
-						<Button className='mt-2 w-full' type='submit'>
+						<Button className='mt-2 w-full' type='submit' disabled={isCreating}>
 							Submit
 						</Button>
 					</form>

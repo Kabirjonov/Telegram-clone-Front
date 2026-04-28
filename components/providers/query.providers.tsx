@@ -4,13 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const handleQueryError = (error: IError | Error) => {
-	console.log("some errors", error);
-	const message =
-		(error as IError)?.response?.data?.message ||
-		error?.message ||
-		"Something went wrong";
-
-	toast.error(message);
+	if ((error as IError).response.data.message) {
+		return toast.error((error as IError).response.data.message);
+	}
+	return toast.error("Something went wrong");
 };
 const queryClient = new QueryClient({
 	defaultOptions: {

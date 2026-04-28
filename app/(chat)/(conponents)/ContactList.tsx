@@ -12,12 +12,17 @@ import {
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCurrentContact } from "@/hook/useCurrentContact";
+import { useState } from "react";
 interface Props {
 	contactList: IUser[];
 }
 
 export default function ContactList({ contactList }: Props) {
+	const [query, setQuery] = useState("");
 	const { currentContact, setCurrentContact } = useCurrentContact();
+	const filteredContacts = contactList.filter(contact =>
+		contact.email.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+	);
 	const renderContact = (contact: IUser) => {
 		const router = useRouter();
 
@@ -29,8 +34,8 @@ export default function ContactList({ contactList }: Props) {
 		return (
 			<div
 				className={cn(
-					"flex justify-between items-center cursor-pointer hover:bg-secondary/50 p-2",
 					currentContact?._id === contact._id && "bg-secondary",
+					"flex justify-between items-center cursor-pointer hover:bg-secondary/50 p-2",
 				)}
 				onClick={onChat}
 			>
@@ -69,17 +74,24 @@ export default function ContactList({ contactList }: Props) {
 				<Settings />
 
 				<div className='m-2 w-full'>
-					<Input className='bg-secondary' type='text' placeholder='Search' />
+					<Input
+						className='bg-secondary'
+						value={query}
+						onChange={e => setQuery(e.target.value)}
+						type='text'
+						placeholder='Search'
+					/>
 				</div>
 			</div>
-			{contactList.length == 0 && (
+			{filteredContacts.length == 0 ? (
 				<div className='h-full w-full flex justify-center items-center text-center text-muted-foreground'>
 					<p>Contact list is empty</p>
 				</div>
+			) : (
+				filteredContacts.map(user => (
+					<div key={user._id}>{renderContact(user)}</div>
+				))
 			)}
-			{contactList.map(user => (
-				<div key={user._id}>{renderContact(user)}</div>
-			))}
 		</>
 	);
 }
