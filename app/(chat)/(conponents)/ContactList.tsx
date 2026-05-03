@@ -22,13 +22,13 @@ interface Props {
 export default function ContactList({ contactList }: Props) {
 	const [query, setQuery] = useState("");
 	const { onlineUsers } = useAuthStore();
+	const router = useRouter();
+
 	const { currentContact, setCurrentContact } = useCurrentContact();
 	const filteredContacts = contactList.filter(contact =>
 		contact.email.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
 	);
 	const renderContact = (contact: IUser) => {
-		const router = useRouter();
-
 		const onChat = () => {
 			if (currentContact?._id === contact._id) return;
 			setCurrentContact(contact);

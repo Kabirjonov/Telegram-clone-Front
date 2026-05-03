@@ -11,9 +11,22 @@ import {
 import { useAuthStore } from "@/hook/useAuth";
 import { useCurrentContact } from "@/hook/useCurrentContact";
 import { isUserOnline } from "@/lib/isUserOnline";
-import { Settings } from "lucide-react";
+import {
+	Ban,
+	BrushCleaning,
+	EllipsisVertical,
+	Settings,
+	Trash,
+} from "lucide-react";
 import Image from "next/image";
-
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 export default function TopChat() {
 	const { currentContact } = useCurrentContact();
 	const { onlineUsers } = useAuthStore();
@@ -74,7 +87,68 @@ export default function TopChat() {
 					</Button>
 				</SheetTrigger>
 				<SheetContent className='px-1'>
-					<SheetHeader>
+					<SheetHeader className='flex items-'>
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button variant={"ghost"} size={"icon"}>
+									<Trash />
+									Delete chat
+								</Button>
+							</DialogTrigger>
+							<DialogContent showCloseButton={false}>
+								<DialogHeader>
+									<DialogTitle>No Close Button</DialogTitle>
+									<DialogDescription>
+										This dialog doesn&apos;t have a close button in the
+										top-right corner.
+										<Button variant='destructive'>
+											Delete {currentContact?.email}
+										</Button>
+									</DialogDescription>
+								</DialogHeader>
+							</DialogContent>
+						</Dialog>
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button variant={"ghost"} size={"icon"}>
+									<BrushCleaning />
+									clear history
+								</Button>
+							</DialogTrigger>
+							<DialogContent showCloseButton={false}>
+								<DialogHeader>
+									<DialogTitle>No Close Button</DialogTitle>
+									<DialogDescription>
+										This dialog doesn&apos;t have a close button in the
+										top-right corner.
+										<Button variant='destructive'>
+											Delete {currentContact?.email}
+										</Button>
+									</DialogDescription>
+								</DialogHeader>
+							</DialogContent>
+						</Dialog>
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button variant={"ghost"} size={"icon"}>
+									<Ban />
+									Block user
+								</Button>
+							</DialogTrigger>
+							<DialogContent showCloseButton={false}>
+								<DialogHeader>
+									<DialogTitle>No Close Button</DialogTitle>
+									<DialogDescription>
+										This dialog doesn&apos;t have a close button in the
+										top-right corner.
+										<Button variant='destructive'>
+											Delete {currentContact?.email}
+										</Button>
+									</DialogDescription>
+								</DialogHeader>
+							</DialogContent>
+						</Dialog>
+
 						<SheetTitle />
 					</SheetHeader>
 					<div className='mx-auto w-1/2 h-36 relative'>

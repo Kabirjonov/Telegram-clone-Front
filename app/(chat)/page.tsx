@@ -25,8 +25,13 @@ export default function HomePage() {
 	const router = useRouter();
 	const { setLoading, setCreating, isLoading } = useLoading();
 	const { data: session } = useSession();
-	const { onlineUsers, setOnlineUsers } = useAuthStore();
+	const { setOnlineUsers } = useAuthStore();
 	const socket = useRef<ReturnType<typeof io> | null>(null);
+	const messageForm = useForm<z.infer<typeof messageSchema>>({
+		resolver: zodResolver(messageSchema),
+		defaultValues: { text: "", image: "" },
+	});
+
 	useEffect(() => {
 		router.replace("/");
 		socket.current = io("ws://localhost:4000");
@@ -44,13 +49,19 @@ export default function HomePage() {
 			);
 		}
 	}, [session?.currentUser]);
+	useEffect(() => {
+		if (session?.currentUser) {
+			socket.current?.on("getCreatedUser", user => {
+				setContects(prev => {
+					const isExist = prev.some(item => item._id === user.id);
+					return isExist ? prev : [...prev, user];
+				});
+			});
+		}
+	}, [session?.currentUser, socket]);
 	const contactForm = useForm<z.infer<typeof emailSchema>>({
 		resolver: zodResolver(emailSchema),
 		defaultValues: { email: "" },
-	});
-	const messageForm = useForm<z.infer<typeof messageSchema>>({
-		resolver: zodResolver(messageSchema),
-		defaultValues: { text: "", image: "" },
 	});
 	const onCreateContact = async (values: z.infer<typeof emailSchema>) => {
 		setCreating(true);
@@ -65,8 +76,14 @@ export default function HomePage() {
 					},
 				},
 			);
-			console.log("create contact", data);
 			setContects(prev => [...prev, data.body]);
+			console.log("oncreatecontact", data.body);
+			socket.current?.emit("createContact", {
+				currentUser: session?.currentUser,
+				receiver: data.body,
+			});
+			contactForm.reset();
+
 			toast.success(data.message);
 		} catch (error: any) {
 			if ((error as IError)?.response?.data?.message) {
@@ -102,7 +119,6 @@ export default function HomePage() {
 			setCreating(false);
 		}
 	};
-
 	return (
 		<>
 			<div className='w-[20%] h-screen border-r fixed inset-0 z-50'>
