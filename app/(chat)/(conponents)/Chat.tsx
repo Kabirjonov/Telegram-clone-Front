@@ -20,12 +20,16 @@ import {
 	EmojiPickerContent,
 	EmojiPickerSearch,
 } from "@/components/ui/emoji-picker";
+import { useLoading } from "@/hook/useLoading";
+import { IMessage } from "@/types";
 
 interface Props {
 	messageForm: UseFormReturn<z.infer<typeof messageSchema>>;
 	onSendMessage: (values: any) => void;
+	messages: IMessage[];
 }
-export default function Chat({ messageForm, onSendMessage }: Props) {
+export default function Chat({ messageForm, onSendMessage, messages }: Props) {
+	const { loadMessages } = useLoading();
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const handleSelectEmoji = (emoji: string) => {
 		const input = inputRef.current;
@@ -41,9 +45,20 @@ export default function Chat({ messageForm, onSendMessage }: Props) {
 	};
 	return (
 		<div className='flex flex-col  justify-end z-40 min-h-[92vh] '>
-			{/* <ChatLoading /> */}
-			<MessageCard isReceived />
-			<MessageCard />
+			{loadMessages && <ChatLoading />}
+			{messages.length === 0 && (
+				<div className='w-full h-[88vh] flex items-center justify-center'>
+					<div
+						className='text-[100px] cursor-pointer'
+						onClick={() => onSendMessage({ text: "Hi" })}
+					>
+						Hi
+					</div>
+				</div>
+			)}
+			{messages.map((message, index) => (
+				<MessageCard key={index} message={message} />
+			))}
 
 			<form
 				onSubmit={messageForm.handleSubmit(onSendMessage)}
