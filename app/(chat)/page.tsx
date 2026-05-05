@@ -1,7 +1,7 @@
 "use client";
 import { Loader2 } from "lucide-react";
 import ContactList from "./(conponents)/ContactList";
-import { IApiResponse, IError, IMessage, IUser } from "@/types";
+import { IApiResponse, IError, IGetSocketType, IMessage, IUser } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import AddContact from "./(conponents)/AddContact";
 import { useCurrentContact } from "@/hook/useCurrentContact";
@@ -75,13 +75,38 @@ export default function HomePage() {
 				return isExist ? prev : [...prev, user];
 			});
 		};
+		const handleGetNewMessage = ({
+			newMessage,
+			receiver,
+			sender,
+		}: IGetSocketType) => {
+			if (
+				currentContact?._id &&
+				sender._id !== currentContact._id &&
+				receiver._id !== currentContact._id
+			) {
+				return;
+			}
+			setMessage(prev => {
+				const isExist = prev.some(item => item._id === newMessage._id);
+				return isExist ? prev : [...prev, newMessage];
+			});
+			toast.info(sender.email.split("@")[0], {
+				description: newMessage.text,
+			});
+			if (!receiver.muted) {
+				console.log(receiver.notificationSound);
+			}
+		};
 
 		socket.current.on("getCreateUser", handleCreateUser);
+		socket.current.on("getNewMessage", handleGetNewMessage);
 
 		return () => {
 			socket.current?.off("getCreateUser", handleCreateUser);
+			socket.current?.off("getNewMessage", handleGetNewMessage);
 		};
-	}, [session?.currentUser]);
+	}, [currentContact?._id, session?.currentUser]);
 	useEffect(() => {
 		if (currentContact?._id) {
 			getMessage();
@@ -124,7 +149,7 @@ export default function HomePage() {
 		setCreating(true);
 		const token = await generateToken(session?.currentUser._id);
 		try {
-			const { data } = await api.post<IApiResponse<IMessage>>(
+			const { data } = await api.post<IApiResponse<IGetSocketType>>(
 				"/api/message/create-message",
 				{ ...values, receiver: currentContact?._id },
 				{
@@ -133,8 +158,12 @@ export default function HomePage() {
 					},
 				},
 			);
-			setMessage(prev => [...prev, data.body]);
-			socket.current?.emit("sendMessage");
+			setMessage(prev => [...prev, data.body.newMessage]);
+			socket.current?.emit("sendMessage", {
+				newMessage: data.body.newMessage,
+				receiver: data.body.receiver,
+				sender: data.body.sender,
+			});
 			messageForm.reset();
 		} catch (error) {
 		} finally {

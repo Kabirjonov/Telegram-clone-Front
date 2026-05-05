@@ -1,20 +1,13 @@
-import { useCurrentContact } from "@/hook/useCurrentContact";
 import { cn } from "@/lib/utils";
 import { IMessage } from "@/types";
+import { useSession } from "next-auth/react";
 interface Props {
 	message: IMessage;
 }
 export default function MessageCard({ message }: Props) {
-	const { currentContact } = useCurrentContact();
-
-	if (!message?.receiver || !currentContact?._id) {
-		console.log({
-			receiverId: message,
-			currentContactId: currentContact,
-		});
-		return null;
-	}
-	const isCurrent = message.receiver._id === currentContact?._id;
+	const { data: session } = useSession();
+	const currentUserId = session?.currentUser?._id;
+	const isCurrent = message.sender?._id === currentUserId;
 	return (
 		<div
 			className={cn(
@@ -29,7 +22,9 @@ export default function MessageCard({ message }: Props) {
 				)}
 			>
 				<p className='text-sm text-white'>{message.text}</p>
-				<span className='text-xs right-1 bottom-0 absolute opacity-60'>c</span>
+				<span className='text-xs right-1 bottom-0 absolute opacity-60'>
+					{message.status === "sent" ? "c" : "cc"}
+				</span>
 			</div>
 		</div>
 	);

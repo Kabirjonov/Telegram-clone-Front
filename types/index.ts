@@ -25,8 +25,14 @@ export interface IMessage {
 	text: string;
 	image?: string;
 	reaction: string;
+	status: string;
 	sender: IUser;
 	receiver: IUser;
 	createdAt: string;
 	updatedAt: string;
+}
+export interface IGetSocketType {
+	receiver: IUser;
+	sender: IUser;
+	newMessage: IMessage;
 }
