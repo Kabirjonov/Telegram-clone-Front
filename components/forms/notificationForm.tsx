@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "../ui/button";
 import { ChevronDown, PlayCircle, Volume2, VolumeOff } from "lucide-react";
-import { SOUNDS } from "@/constants/audio";
+import { SOUNDS } from "@/constants/const";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import useAudio from "@/hook/useAudio";

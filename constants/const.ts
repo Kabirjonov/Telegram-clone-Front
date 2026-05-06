@@ -4,3 +4,9 @@ export const SOUNDS = [
 	{ label: "Belli", value: "4.mp3" },
 	{ label: "Oranger", value: "5.mp3" },
 ] as const;
+
+export const MessageStatus = {
+	READ: "read",
+	DELIVERED: "delivered",
+	SENT: "sent",
+};

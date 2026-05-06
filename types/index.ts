@@ -10,6 +10,7 @@ export interface IUser {
 	sendingSound: string;
 	isVerified: boolean;
 	contacts: IUser[];
+	lastMessage: IMessage;
 }
 export interface IApiResponse<T = null> {
 	message: string;

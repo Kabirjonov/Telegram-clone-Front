@@ -10,11 +10,12 @@ import {
 	AvatarImage,
 } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, sliteText } from "@/lib/utils";
 import { useCurrentContact } from "@/hook/useCurrentContact";
 import { useState } from "react";
 import { useAuthStore } from "@/hook/useAuth";
 import { isUserOnline } from "@/lib/isUserOnline";
+import { format } from "date-fns";
 interface Props {
 	contactList: IUser[];
 }
@@ -64,13 +65,19 @@ export default function ContactList({ contactList }: Props) {
 								contact.email.split("@")[0]}
 						</h2>
 						<p className='text-muted-foreground text-xs line-clamp-1'>
-							No message yet
+							{contact.lastMessage
+								? sliteText(contact.lastMessage.text, 20)
+								: "No message yet"}
 						</p>
 					</div>
 				</div>
-				<div className='self-end'>
-					<p className='text-xs text-muted-foreground'>20:00 am</p>{" "}
-				</div>
+				{contact.lastMessage && (
+					<div className='self-end'>
+						<p className='text-xs text-muted-foreground'>
+							{format(contact.lastMessage.updatedAt, "hh:mm a")}
+						</p>
+					</div>
+				)}
 			</div>
 		);
 	};

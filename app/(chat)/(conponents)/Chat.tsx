@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import ChatLoading from "../../../components/loadings/ChatLoading";
 import MessageCard from "@/components/cards/MessageCard";
 import { Controller, UseFormReturn } from "react-hook-form";
@@ -27,10 +27,19 @@ interface Props {
 	messageForm: UseFormReturn<z.infer<typeof messageSchema>>;
 	onSendMessage: (values: any) => void;
 	messages: IMessage[];
+	onReadMessages: () => void;
 }
-export default function Chat({ messageForm, onSendMessage, messages }: Props) {
+export default function Chat({
+	messageForm,
+	onSendMessage,
+	messages,
+	onReadMessages,
+}: Props) {
 	const { loadMessages } = useLoading();
 	const inputRef = useRef<HTMLInputElement | null>(null);
+	useEffect(() => {
+		onReadMessages();
+	}, [messages]);
 	const handleSelectEmoji = (emoji: string) => {
 		const input = inputRef.current;
 		if (!input) return;
